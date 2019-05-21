@@ -1,3 +1,4 @@
+apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
@@ -7,28 +8,35 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.1'
     }
 }
 
-apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
+    compileSdkVersion safeExtGet("compileSdkVersion", 27)
+	buildToolsVersion safeExtGet("buildToolsVersion", "28.0.3")
 
-    defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
-    }
+	defaultConfig {
+		minSdkVersion safeExtGet("minSdkVersion", 16)
+		targetSdkVersion safeExtGet("targetSdkVersion", 27)
+	}
+    
     lintOptions {
         abortOnError false
     }
 }
 
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 repositories {
+    maven {
+		// All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+		url "$rootDir/../node_modules/react-native/android"
+		// To test url "$rootDir/../example/node_modules/react-native/android"
+	}
     google()
     mavenCentral()
     maven { url "https://maven.google.com" }
@@ -36,8 +44,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
+    implementation 'com.facebook.react:react-native:[0.30.0,)'
     implementation 'com.github.javiersantos:BottomDialogs:1.2.1'
     implementation 'com.github.prscx:bottomsheetbuilder:fixes-SNAPSHOT'
-    implementation 'com.android.support:design:27.1.1'
+    implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
 }
