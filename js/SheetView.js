@@ -37,60 +37,66 @@ class SheetView extends PureComponent {
   };
 
   static Show(props) {
-    if (props.title === undefined) props.title = SheetView.defaultProps.title;
-    if (props.items === undefined) props.items = SheetView.defaultProps.items;
-    if (props.theme === undefined) props.theme = SheetView.defaultProps.theme;
-    if (props.selection === undefined)
-      props.selection = SheetView.defaultProps.selection;
-    if (props.titleTextColor === undefined)
-      props.titleTextColor = SheetView.defaultProps.titleTextColor;
-    if (props.itemTextColor === undefined)
-      props.itemTextColor = SheetView.defaultProps.itemTextColor;
-    if (props.itemTintColor === undefined)
-      props.itemTintColor = SheetView.defaultProps.itemTintColor;
-    if (props.backgroundColor === undefined)
-      props.backgroundColor = SheetView.defaultProps.backgroundColor;
-    if (props.delayDismissOnItemClick === undefined)
-      props.delayDismissOnItemClick =
-        SheetView.defaultProps.delayDismissOnItemClick;
+    const {
+      title = SheetView.defaultProps.title,
+      items = SheetView.defaultProps.items,
+      theme = SheetView.defaultProps.theme,
+      selection = SheetView.defaultProps.selection,
+      titleTextColor = SheetView.defaultProps.titleTextColor,
+      itemTintColor = SheetView.defaultProps.itemTintColor,
+      itemTextColor = SheetView.defaultProps.itemTextColor,
+      backgroundColor = SheetView.defaultProps.backgroundColor,
+      delayDismissOnItemClick = SheetView.defaultProps.delayDismissOnItemClick,
+      onSelection,
+      onCancel,
+    } = props;
 
-    props.items = props.items.map(element => {
-      if (element.title === undefined) element.title = "";
-      if (element.subTitle === undefined) element.subTitle = "";
-      if (element.divider === undefined) element.divider = false;
-
-      if (element.icon && element.icon.props) {
-        element.icon = element.icon.props;
-
-        let vectorIcon = RNVectorHelper.Resolve(element.icon.family, element.icon.name);
-        element.icon = Object.assign({}, element.icon, vectorIcon);
-      } else if (element.icon !== undefined) {
-        element.icon = { name: element.icon, family: "", glyph: "", color: "", size: 0 };
+    const newItems = items.map(item => {
+      const newItem = {
+        title: '',
+        subTitle: '',
+        divider: false,
+        ...item,
+      };
+      if (item.icon && item.icon.props) {
+        const { family, name } = item.icon.props;
+        newItem.icon = Object.assign(
+          {},
+          item.icon.props,
+          RNVectorHelper.Resolve(family, name)
+        );
+      } else if (item.icon !== undefined) {
+        newItem.icon = {
+          name: item.icon,
+          family: '',
+          glyph: '',
+          color: '',
+          size: 0,
+        };
       } else {
-        element.icon = {}
+        newItem.icon = {}
       }
-
-      return element;
-    });
+      return newItem;
+    })
 
     RNBottomActionSheet.SheetView(
       {
-        title: props.title,
-        items: props.items,
-        theme: props.theme,
-        selection: props.selection,
-        titleTextColor: props.titleTextColor,
-        itemTextColor: props.itemTextColor,
-        itemTintColor: props.itemTintColor,
-        backgroundColor: props.backgroundColor,
-        delayDismissOnItemClick: props.delayDismissOnItemClick
+        title,
+        items: newItems,
+        theme,
+        selection,
+        titleTextColor,
+        itemTextColor,
+        itemTintColor,
+        backgroundColor,
+        delayDismissOnItemClick,
       },
       selectedIndex => {
-        const selectedValue = props.items[selectedIndex].value
-        props.onSelection && props.onSelection(selectedIndex, selectedValue);
+        const selectedValue = newItems[selectedIndex].value
+        onSelection && onSelection(selectedIndex, selectedValue)
       },
       () => {
-        props.onCancel && props.onCancel()
+        onCancel && onCancel()
       }
     );
   }
